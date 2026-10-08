@@ -1,0 +1,2 @@
+# The scripts, package list and patches are used by MSYS2 tools, which do not handle CRLF line endings.
+* text=auto eol=lf
