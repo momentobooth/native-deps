@@ -1,0 +1,14 @@
+git
+patch
+zip
+mingw-w64-clang-x86_64-cc
+mingw-w64-clang-x86_64-autotools
+mingw-w64-clang-x86_64-jq
+mingw-w64-clang-x86_64-pkgconf
+mingw-w64-clang-x86_64-libexif
+mingw-w64-clang-x86_64-libiconv
+mingw-w64-clang-x86_64-libjpeg-turbo
+mingw-w64-clang-x86_64-libltdl
+mingw-w64-clang-x86_64-libsystre
+mingw-w64-clang-x86_64-libusb
+mingw-w64-clang-x86_64-libxml2

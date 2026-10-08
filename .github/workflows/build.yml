@@ -1,0 +1,71 @@
+name: Build native dependencies
+
+on:
+  workflow_dispatch:
+    inputs:
+      libgphoto2_ref:
+        description: libgphoto2 git ref to build (tag, branch or commit hash)
+        required: true
+        default: v2.5.34
+      release_tag:
+        description: Release to publish the bundles to, e.g. libgphoto2-2.5.34-1. Leave empty to only upload workflow artifacts.
+        required: false
+
+permissions:
+  contents: write
+
+jobs:
+  windows-x64:
+    runs-on: windows-2025
+    timeout-minutes: 30
+
+    defaults:
+      run:
+        shell: msys2 {0}
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v6
+
+    - name: Setup MSYS2
+      uses: msys2/setup-msys2@v2
+      with:
+        msystem: CLANG64
+        update: true
+
+    - name: Install build dependencies
+      run: pacman -S --needed --noconfirm $(cat windows/msys2-packages.txt)
+
+    - name: Build
+      run: windows/build.sh "${{ inputs.libgphoto2_ref }}" dist/libgphoto2-windows-x64.zip
+
+    - name: Upload bundle
+      uses: actions/upload-artifact@v4
+      with:
+        name: libgphoto2-windows-x64
+        path: dist/libgphoto2-windows-x64.zip
+        compression-level: 0
+
+  release:
+    if: ${{ inputs.release_tag != '' }}
+    needs: [windows-x64]
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Download bundles
+      uses: actions/download-artifact@v4
+      with:
+        path: dist
+        merge-multiple: true
+
+    - name: Create release
+      working-directory: dist
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        sha256sum *.zip > SHA256SUMS
+        gh release create "${{ inputs.release_tag }}" *.zip SHA256SUMS \
+          --repo "${{ github.repository }}" \
+          --target "${{ github.sha }}" \
+          --title "${{ inputs.release_tag }}" \
+          --notes "libgphoto2 built from \`${{ inputs.libgphoto2_ref }}\`."
