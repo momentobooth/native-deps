@@ -46,9 +46,30 @@ jobs:
         path: dist/libgphoto2-windows-x64.zip
         compression-level: 0
 
+  macos-arm64:
+    runs-on: macos-15
+    timeout-minutes: 30
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v6
+
+    - name: Install build dependencies
+      run: brew install $(cat macos/brew-packages.txt)
+
+    - name: Build
+      run: macos/build.sh "${{ inputs.libgphoto2_ref }}" dist/libgphoto2-macos-arm64.zip
+
+    - name: Upload bundle
+      uses: actions/upload-artifact@v4
+      with:
+        name: libgphoto2-macos-arm64
+        path: dist/libgphoto2-macos-arm64.zip
+        compression-level: 0
+
   release:
     if: ${{ inputs.release_tag != '' }}
-    needs: [windows-x64]
+    needs: [windows-x64, macos-arm64]
     runs-on: ubuntu-latest
 
     steps:

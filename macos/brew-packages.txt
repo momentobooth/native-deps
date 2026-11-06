@@ -1,0 +1,6 @@
+autoconf
+automake
+gettext
+jq
+libtool
+pkgconf
